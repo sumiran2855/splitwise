@@ -6,6 +6,7 @@ import { Label } from '@/src/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/src/components/ui/card';
 import { toast } from 'sonner';
 import { useNavigation } from '@/src/contexts/navigationContext';
+import { AuthUtils } from '@/src/utils/auth';
 
 interface LoginPageProps {
   onLogin: () => void;
@@ -14,15 +15,48 @@ interface LoginPageProps {
 export default function LoginPage({ onLogin }: LoginPageProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { navigate, setAuthenticated } = useNavigation();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email && password) {
-      toast.success('Welcome back!');
-      navigate('dashboard');
-    } else {
+    
+    if (!email || !password) {
       toast.error('Please fill in all fields');
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Store auth data using utility
+        AuthUtils.setAuth(data.data);
+        
+        toast.success('Welcome back!');
+        setAuthenticated(true);
+        onLogin();
+      } else {
+        toast.error(data.error || 'Login failed');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.error('Network error. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -77,8 +111,12 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
               </button>
             </CardContent>
             <CardFooter className="flex flex-col space-y-3">
-              <Button type="submit" className="w-full bg-[#1cc29f] hover:bg-[#17a588]">
-                Sign in
+              <Button 
+                type="submit" 
+                disabled={isLoading}
+                className="w-full bg-[#1cc29f] hover:bg-[#17a588]"
+              >
+                {isLoading ? 'Signing in...' : 'Sign in'}
               </Button>
               <div className="text-center">
                 <span className="text-muted-foreground mr-1">Don't have an account?</span>
