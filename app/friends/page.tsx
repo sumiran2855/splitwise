@@ -7,13 +7,10 @@ import { Input } from '@/src/components/ui/input';
 import { UserPlus, Search } from 'lucide-react';
 import { mockFriends } from '@/src/data/mockData';
 import { useState } from 'react';
-import type { Page, NavigationState } from '@/src/contexts/navigationContext';
+import { useNavigation } from '@/src/contexts/navigationContext';
 
-interface FriendsPageProps {
-  navigate: (page: Page, state?: NavigationState) => void;
-}
-
-export default function FriendsPage({ navigate }: FriendsPageProps) {
+export default function FriendsPage() {
+  const { navigate } = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredFriends = mockFriends.filter(friend =>

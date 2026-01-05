@@ -7,13 +7,10 @@ import { Label } from '@/src/components/ui/label';
 import { ArrowLeft, Mail, UserPlus, Search } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import type { Page, NavigationState } from '@/src/contexts/navigationContext';
+import { useNavigation } from '@/src/contexts/navigationContext';
 
-interface AddFriendPageProps {
-  navigate: (page: Page, state?: NavigationState) => void;
-}
-
-export default function AddFriendPage({ navigate }: AddFriendPageProps) {
+export default function AddFriendPage() {
+  const { navigate } = useNavigation();
   const [email, setEmail] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 

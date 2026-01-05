@@ -6,14 +6,14 @@ import { Button } from '@/src/components/ui/button';
 import { Badge } from '@/src/components/ui/badge';
 import { ArrowLeft, Settings, UserPlus, PlusCircle } from 'lucide-react';
 import { mockGroups, mockExpenses } from '@/src/data/mockData';
-import type { Page, NavigationState } from '@/src/contexts/navigationContext';
+import { useNavigation } from '@/src/contexts/navigationContext';
 
 interface GroupDetailPageProps {
   groupId: string;
-  navigate: (page: Page, state?: NavigationState) => void;
 }
 
-export default function GroupDetailPage({ groupId, navigate }: GroupDetailPageProps) {
+export default function GroupDetailPage({ groupId }: GroupDetailPageProps) {
+  const { navigate } = useNavigation();
   const group = mockGroups.find(g => g.id === groupId);
 
   if (!group) {

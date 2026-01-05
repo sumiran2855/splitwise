@@ -11,13 +11,10 @@ import { ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { mockFriends, groupCategories } from '@/src/data/mockData';
-import type { Page, NavigationState } from '@/src/contexts/navigationContext';
+import { useNavigation } from '@/src/contexts/navigationContext';
 
-interface CreateGroupPageProps {
-  navigate: (page: Page, state?: NavigationState) => void;
-}
-
-export default function CreateGroupPage({ navigate }: CreateGroupPageProps) {
+export default function CreateGroupPage() {
+  const { navigate } = useNavigation();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<string>('other');

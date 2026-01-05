@@ -7,13 +7,10 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { TrendingUp, TrendingDown, DollarSign, Calendar } from 'lucide-react';
 import { mockExpenses, expenseCategories } from '@/src/data/mockData';
 import { useState } from 'react';
-import type { Page, NavigationState } from '@/src/contexts/navigationContext';
+import { useNavigation } from '@/src/contexts/navigationContext';
 
-interface InsightsPageProps {
-  navigate: (page: Page, state?: NavigationState) => void;
-}
-
-export default function InsightsPage({ navigate }: InsightsPageProps) {
+export default function InsightsPage() {
+  const { navigate } = useNavigation();
   const [timeRange, setTimeRange] = useState('month');
 
   // Calculate category spending

@@ -10,13 +10,10 @@ import { ArrowLeft, Camera, Mail, Phone, MapPin, Calendar } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { currentUser, mockExpenses, mockFriends, mockGroups } from '@/src/data/mockData';
-import type { Page, NavigationState } from '@/src/contexts/navigationContext';
+import { useNavigation } from '@/src/contexts/navigationContext';
 
-interface ProfilePageProps {
-  navigate: (page: Page, state?: NavigationState) => void;
-}
-
-export default function ProfilePage({ navigate }: ProfilePageProps) {
+export default function ProfilePage() {
+  const { navigate } = useNavigation();
   const [name, setName] = useState(currentUser.name);
   const [email, setEmail] = useState(currentUser.email);
   const [phone, setPhone] = useState('+1 (555) 123-4567');

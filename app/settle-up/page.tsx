@@ -9,14 +9,14 @@ import { ArrowLeft, DollarSign, CreditCard, Building2, Smartphone } from 'lucide
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { mockFriends, currentUser } from '@/src/data/mockData';
-import type { Page, NavigationState } from '@/src/contexts/navigationContext';
+import { useNavigation } from '@/src/contexts/navigationContext';
 
 interface SettleUpPageProps {
-  navigate: (page: Page, state?: NavigationState) => void;
   friendId?: string;
 }
 
-export default function SettleUpPage({ navigate, friendId }: SettleUpPageProps) {
+export default function SettleUpPage({ friendId }: SettleUpPageProps) {
+  const { navigate } = useNavigation();
   const friend = mockFriends.find(f => f.id === friendId);
   const [amount, setAmount] = useState(friend ? Math.abs(friend.balance).toFixed(2) : '');
   const [paymentMethod, setPaymentMethod] = useState('');
@@ -26,7 +26,7 @@ export default function SettleUpPage({ navigate, friendId }: SettleUpPageProps) 
       <AppLayout currentPage="balances" navigate={navigate}>
         <div className="text-center py-12">
           <p className="text-muted-foreground">Friend not found</p>
-          <Button onClick={() => navigate('balances')} className="mt-4">
+          <Button onClick={() => navigate('dashboard')} className="mt-4">
             Go to Balances
           </Button>
         </div>

@@ -8,11 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/src/components/ui/ta
 import { Bell, DollarSign, Users, UserPlus, CheckCircle2, XCircle } from 'lucide-react';
 import { mockFriends, mockGroups, currentUser } from '@/src/data/mockData';
 import { toast } from 'sonner';
-import type { Page, NavigationState } from '@/src/contexts/navigationContext';
-
-interface NotificationsPageProps {
-  navigate: (page: Page, state?: NavigationState) => void;
-}
+import { useNavigation } from '@/src/contexts/navigationContext';
 
 interface Notification {
   id: string;
@@ -25,7 +21,8 @@ interface Notification {
   actionable?: boolean;
 }
 
-export default function NotificationsPage({ navigate }: NotificationsPageProps) {
+export default function NotificationsPage() {
+  const { navigate } = useNavigation();
   const notifications: Notification[] = [
     {
       id: 'n1',

@@ -4,13 +4,10 @@ import { Card, CardContent } from '@/src/components/ui/card';
 import { Avatar, AvatarFallback } from '@/src/components/ui/avatar';
 import { DollarSign, Plus, Trash2, Users } from 'lucide-react';
 import { mockActivities } from '@/src/data/mockData';
-import type { Page, NavigationState } from '@/src/contexts/navigationContext';
+import { useNavigation } from '@/src/contexts/navigationContext';
 
-interface ActivityPageProps {
-  navigate: (page: Page, state?: NavigationState) => void;
-}
-
-export default function ActivityPage({ navigate }: ActivityPageProps) {
+export default function ActivityPage() {
+  const { navigate } = useNavigation();
   const getActivityIcon = (type: string) => {
     switch (type) {
       case 'expense_added':

@@ -12,14 +12,10 @@ import { ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { mockFriends, mockGroups, expenseCategories, currentUser } from '@/src/data/mockData';
-import type { Page, NavigationState } from '@/src/contexts/navigationContext';
+import { useNavigation } from '@/src/contexts/navigationContext';
 
-interface AddExpensePageProps {
-  navigate: (page: Page, state?: NavigationState) => void;
-  groupId?: string;
-}
-
-export default function AddExpensePage({ navigate, groupId }: AddExpensePageProps) {
+export default function AddExpensePage({ groupId }: { groupId?: string }) {
+  const { navigate } = useNavigation();
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');

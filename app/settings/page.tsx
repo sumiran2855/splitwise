@@ -8,14 +8,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Bell, Globe, Lock, CreditCard, Users, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import type { Page, NavigationState } from '@/src/contexts/navigationContext';
+import { useNavigation } from '@/src/contexts/navigationContext';
 
-interface SettingsPageProps {
-  navigate: (page: Page, state?: NavigationState) => void;
-  onLogout: () => void;
-}
-
-export default function SettingsPage({ navigate, onLogout }: SettingsPageProps) {
+export default function SettingsPage() {
+  const { navigate, setAuthenticated } = useNavigation();
+  
+  const handleLogout = () => {
+    setAuthenticated(false);
+  };
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
   const [expenseReminders, setExpenseReminders] = useState(false);
@@ -214,7 +214,7 @@ export default function SettingsPage({ navigate, onLogout }: SettingsPageProps) 
         <div className="flex space-x-3">
           <Button
             variant="outline"
-            onClick={onLogout}
+            onClick={handleLogout}
             className="flex-1"
           >
             Logout

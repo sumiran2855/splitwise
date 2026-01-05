@@ -7,14 +7,14 @@ import { Badge } from '@/src/components/ui/badge';
 import { ArrowLeft, Edit, Trash2, Calendar, Tag, Users, DollarSign } from 'lucide-react';
 import { mockExpenses } from '@/src/data/mockData';
 import { toast } from 'sonner';
-import type { Page, NavigationState } from '@/src/contexts/navigationContext';
+import { useNavigation } from '@/src/contexts/navigationContext';
 
 interface ExpenseDetailPageProps {
   expenseId: string;
-  navigate: (page: Page, state?: NavigationState) => void;
 }
 
-export default function ExpenseDetailPage({ expenseId, navigate }: ExpenseDetailPageProps) {
+export default function ExpenseDetailPage({ expenseId }: ExpenseDetailPageProps) {
+  const { navigate } = useNavigation();
   const expense = mockExpenses.find(e => e.id === expenseId);
 
   if (!expense) {

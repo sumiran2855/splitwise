@@ -8,13 +8,10 @@ import { Badge } from '@/src/components/ui/badge';
 import { PlusCircle, Search, Users } from 'lucide-react';
 import { mockGroups } from '@/src/data/mockData';
 import { useState } from 'react';
-import type { Page, NavigationState } from '@/src/contexts/navigationContext';
+import { useNavigation } from '@/src/contexts/navigationContext';
 
-interface GroupsPageProps {
-  navigate: (page: Page, state?: NavigationState) => void;
-}
-
-export default function GroupsPage({ navigate }: GroupsPageProps) {
+export default function GroupsPage() {
+  const { navigate } = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredGroups = mockGroups.filter(group =>
