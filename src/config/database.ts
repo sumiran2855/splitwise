@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import './shutdown';
 
 interface IDatabaseConnection {
   connect(): Promise<void>;
