@@ -9,14 +9,12 @@ import { useNavigation } from '@/src/contexts/navigationContext';
 
 interface LoginPageProps {
   onLogin: () => void;
-  onNavigateToSignup: () => void;
-  onNavigateToForgotPassword: () => void;
 }
 
-export default function LoginPage({ onLogin, onNavigateToSignup, onNavigateToForgotPassword }: LoginPageProps) {
+export default function LoginPage({ onLogin }: LoginPageProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { navigate } = useNavigation();
+  const { navigate, setAuthenticated } = useNavigation();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,7 +70,7 @@ export default function LoginPage({ onLogin, onNavigateToSignup, onNavigateToFor
               </div>
               <button
                 type="button"
-                onClick={onNavigateToForgotPassword}
+                onClick={() => navigate('forgot-password')}
                 className="text-sm text-[#1cc29f] hover:underline"
               >
                 Forgot password?
@@ -86,7 +84,7 @@ export default function LoginPage({ onLogin, onNavigateToSignup, onNavigateToFor
                 <span className="text-muted-foreground mr-1">Don't have an account?</span>
                 <button
                   type="button"
-                  onClick={onNavigateToSignup}
+                  onClick={() => navigate('signup')}
                   className="text-[#1cc29f] hover:underline"
                 >
                   Sign up
