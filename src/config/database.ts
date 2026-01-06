@@ -46,12 +46,10 @@ class DatabaseConnection implements IDatabaseConnection {
       });
 
       mongoose.connection.on('disconnected', () => {
-        console.log('MongoDB disconnected');
         this.isConnectedFlag = false;
       });
 
       mongoose.connection.on('reconnected', () => {
-        console.log('MongoDB reconnected');
         this.isConnectedFlag = true;
       });
 
@@ -89,7 +87,6 @@ class DatabaseConnection implements IDatabaseConnection {
     try {
       await mongoose.disconnect();
       this.isConnectedFlag = false;
-      console.log('Disconnected from MongoDB');
     } catch (error) {
       console.error('Error disconnecting from MongoDB:', error);
       throw error;

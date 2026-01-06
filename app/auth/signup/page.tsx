@@ -4,6 +4,8 @@ import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
 import { Label } from '@/src/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/src/components/ui/card';
+import { AuthFormProvider } from '@/src/contexts/authFormContext';
+import { SignupRequest } from '@/src/services/interfaces/IAuthService';
 
 function SignupPageContent() {
   const { formData, fieldErrors, handleFieldChange, handleFormSubmit, isLoading, navigate } = useSignupForm();
@@ -112,5 +114,16 @@ function SignupPageContent() {
 }
 
 export default function SignupPage() {
-  return <SignupPageContent />;
+  const initialData: SignupRequest = {
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  };
+
+  return (
+    <AuthFormProvider initialData={initialData}>
+      <SignupPageContent />
+    </AuthFormProvider>
+  );
 }

@@ -4,6 +4,8 @@ import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
 import { Label } from '@/src/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/src/components/ui/card';
+import { AuthFormProvider } from '@/src/contexts/authFormContext';
+import { LoginRequest } from '@/src/services/interfaces/IAuthService';
 
 function LoginPageContent() {
   const { formData, fieldErrors, handleFieldChange, handleFormSubmit, isLoading, navigate } = useLoginForm();
@@ -91,5 +93,14 @@ function LoginPageContent() {
 }
 
 export default function LoginPage() {
-  return <LoginPageContent />;
+  const initialData: LoginRequest = {
+    email: '',
+    password: ''
+  };
+
+  return (
+    <AuthFormProvider initialData={initialData}>
+      <LoginPageContent />
+    </AuthFormProvider>
+  );
 }
