@@ -8,6 +8,12 @@ export const API_ROUTES = {
         RESET_PASSWORD: '/api/auth/reset-password',
         VERIFY_EMAIL: '/api/auth/verify-email',
     },
+    PROFILE: {
+        GET: '/api/profile',
+        ENSURE: '/api/profile/ensure',
+        UPDATE: '/api/profile',
+        UPDATE_AVATAR: '/api/profile/avatar',
+    },
 } as const;
 
 // Helper functions for dynamic routes

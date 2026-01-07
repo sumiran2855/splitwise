@@ -29,6 +29,7 @@ export interface User extends BaseUser {
   passwordHash: string;
   isEmailVerified: boolean;
   role: UserRole;
+  profileId?: string;
 }
 
 export interface Group {
@@ -103,6 +104,7 @@ export interface CreateUserDto {
   password: string;
   name: string;
   phoneNumber?: string;
+  profileId?: string;
 }
 
 export interface LoginDto {

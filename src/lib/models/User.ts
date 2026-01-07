@@ -9,6 +9,7 @@ interface UserDocument extends mongoose.Document {
   phoneNumber?: string;
   isEmailVerified: boolean;
   role: UserRole;
+  profileId?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -36,7 +37,7 @@ const userSchema = new Schema<UserDocument>({
   avatar: {
     type: String,
     validate: {
-      validator: function(v: string) {
+      validator: function (v: string) {
         return /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(v);
       },
       message: 'Avatar must be a valid image URL',
@@ -45,7 +46,7 @@ const userSchema = new Schema<UserDocument>({
   phoneNumber: {
     type: String,
     validate: {
-      validator: function(v: string) {
+      validator: function (v: string) {
         return /^\+?[1-9]\d{1,14}$/.test(v);
       },
       message: 'Phone number must be a valid international phone number',
@@ -60,17 +61,30 @@ const userSchema = new Schema<UserDocument>({
     enum: Object.values(UserRole),
     default: UserRole.USER,
   },
+  profileId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Profile',
+    required: false,
+  },
 }, {
   timestamps: true,
   toJSON: {
-    transform: function(doc: any, ret: any) {
+    transform: function (doc: any, ret: any) {
+      if (ret.profileId) {
+        ret.profileId = ret.profileId.toString();
+      }
       delete ret.passwordHash;
+      delete ret.__v;
       return ret;
     },
   },
   toObject: {
-    transform: function(doc: any, ret: any) {
+    transform: function (doc: any, ret: any) {
+      if (ret.profileId) {
+        ret.profileId = ret.profileId.toString();
+      }
       delete ret.passwordHash;
+      delete ret.__v;
       return ret;
     },
   },
@@ -79,7 +93,7 @@ const userSchema = new Schema<UserDocument>({
 userSchema.index({ name: 1 });
 userSchema.index({ createdAt: -1 });
 
-userSchema.pre('save', function() {
+userSchema.pre('save', function () {
   if (this.isModified('email')) {
     this.email = this.email.toLowerCase();
   }

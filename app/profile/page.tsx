@@ -6,30 +6,130 @@ import { Input } from '@/src/components/ui/input';
 import { Label } from '@/src/components/ui/label';
 import { Avatar, AvatarFallback } from '@/src/components/ui/avatar';
 import { Badge } from '@/src/components/ui/badge';
-import { ArrowLeft, Camera, Mail, Phone, MapPin, Calendar } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowLeft, Camera, Mail, Phone, MapPin, Calendar, User } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { currentUser, mockExpenses, mockFriends, mockGroups } from '@/src/data/mockData';
 import { useNavigation } from '@/src/contexts/navigationContext';
+import { useProfile } from '@/src/hooks/useProfile';
+import { useCurrentUser } from '@/src/hooks/useCurrentUser';
+import { Skeleton } from '@/src/components/ui/skeleton';
 
 export default function ProfilePage() {
   const { navigate } = useNavigation();
-  const [name, setName] = useState(currentUser.name);
-  const [email, setEmail] = useState(currentUser.email);
-  const [phone, setPhone] = useState('+1 (555) 123-4567');
-  const [location, setLocation] = useState('San Francisco, CA');
+  const { user: currentUser, loading: userLoading } = useCurrentUser();
+  console.log("Current user:", currentUser);
+  
+  // Only call useProfile when we have a valid user ID
+  const { profile, loading: profileLoading, updateProfile, updateAvatar } = useProfile(
+    currentUser?.id ? currentUser.id : 'skip'
+  );
 
-  const handleSave = (e: React.FormEvent) => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [location, setLocation] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Initialize form data when profile is loaded
+  useEffect(() => {
+    if (profile) {
+      setName(profile.fullName);
+      setPhone(profile.phone || '');
+      setLocation(profile.location || '');
+    }
+    if (currentUser) {
+      setEmail(currentUser.email);
+    }
+  }, [profile, currentUser]);
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success('Profile updated successfully');
+    if (!currentUser || isSubmitting) return;
+
+    setIsSubmitting(true);
+    const success = await updateProfile({
+      fullName: name,
+      phone: phone || undefined,
+      location: location || undefined,
+    });
+    setIsSubmitting(false);
   };
 
-  // Calculate stats
-  const totalExpenses = mockExpenses.filter(e => e.paidBy.id === currentUser.id).length;
-  const totalPaid = mockExpenses
-    .filter(e => e.paidBy.id === currentUser.id)
-    .reduce((sum, e) => sum + e.amount, 0);
-  const memberSince = new Date('2023-01-15');
+  const handleAvatarClick = () => {
+    // TODO: Implement avatar upload
+    toast.info('Avatar upload coming soon!');
+  };
+
+  const loading = userLoading || profileLoading;
+
+  if (loading) {
+    return (
+      <AppLayout currentPage="profile" navigate={navigate}>
+        <div className="max-w-4xl mx-auto space-y-6">
+          <div className="flex items-center space-x-4">
+            <Button variant="ghost" size="icon" disabled>
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div>
+              <Skeleton className="h-8 w-32 mb-2" />
+              <Skeleton className="h-4 w-48" />
+            </div>
+          </div>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
+                <Skeleton className="w-32 h-32 rounded-full" />
+                <div className="flex-1 text-center md:text-left">
+                  <Skeleton className="h-6 w-48 mb-2" />
+                  <Skeleton className="h-4 w-64 mb-4" />
+                  <Skeleton className="h-6 w-32" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[1, 2, 3].map((i) => (
+              <Card key={i}>
+                <CardHeader className="pb-3">
+                  <Skeleton className="h-4 w-24" />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className="h-8 w-16 mb-1" />
+                  <Skeleton className="h-4 w-20" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (!currentUser) {
+    return (
+      <AppLayout currentPage="profile" navigate={navigate}>
+        <div className="max-w-4xl mx-auto space-y-6">
+          <div className="text-center py-12">
+            <h1 className="mb-2">Profile not available</h1>
+            <p className="text-muted-foreground">Please log in to view your profile</p>
+            <Button
+              onClick={() => navigate('login')}
+              className="mt-4 bg-[#1cc29f] hover:bg-[#17a588]"
+            >
+              Go to Login
+            </Button>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  // Calculate stats (placeholder - will be implemented with actual expense API)
+  const totalExpenses = 0;
+  const totalPaid = 0;
+  const memberSince = currentUser ? new Date('2023-01-15') : new Date();
 
   return (
     <AppLayout currentPage="profile" navigate={navigate}>
@@ -55,17 +155,25 @@ export default function ProfilePage() {
             <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
               <div className="relative">
                 <Avatar className="w-32 h-32">
-                  <AvatarFallback className="bg-gradient-to-br from-[#1cc29f] to-[#17a588] text-white text-4xl">
-                    {currentUser.initials}
-                  </AvatarFallback>
+                  {profile?.avatar ? (
+                    <img src={profile.avatar} alt="Profile" className="w-full h-full object-cover rounded-full" />
+                  ) : (
+                    <AvatarFallback className="bg-gradient-to-br from-[#1cc29f] to-[#17a588] text-white text-4xl">
+                      {(name || profile?.fullName || currentUser?.name || 'User').split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  )}
                 </Avatar>
-                <button className="absolute bottom-0 right-0 w-10 h-10 rounded-full bg-[#1cc29f] text-white flex items-center justify-center hover:bg-[#17a588] transition-colors">
+                <button
+                  onClick={handleAvatarClick}
+                  className="absolute bottom-0 right-0 w-10 h-10 rounded-full bg-[#1cc29f] text-white flex items-center justify-center hover:bg-[#17a588] transition-colors"
+                  type="button"
+                >
                   <Camera className="w-5 h-5" />
                 </button>
               </div>
               <div className="flex-1 text-center md:text-left">
-                <h2 className="mb-1">{currentUser.name}</h2>
-                <p className="text-muted-foreground mb-4">{currentUser.email}</p>
+                <h2 className="mb-1">{name || profile?.fullName || currentUser?.name || 'User'}</h2>
+                <p className="text-muted-foreground mb-4">{email}</p>
                 <div className="flex flex-wrap gap-2 justify-center md:justify-start">
                   <Badge className="bg-[#e6f9f5] text-[#1cc29f]">
                     <Calendar className="w-3 h-3 mr-1" />
@@ -104,7 +212,7 @@ export default function ProfilePage() {
               <CardDescription>Active groups</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl text-[#1cc29f]">{mockGroups.length}</div>
+              <div className="text-3xl text-[#1cc29f]">0</div>
               <p className="text-muted-foreground mt-1">groups</p>
             </CardContent>
           </Card>
@@ -121,12 +229,15 @@ export default function ProfilePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Full name</Label>
-                  <Input
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="bg-input-background"
-                  />
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="pl-10 bg-input-background"
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -172,11 +283,12 @@ export default function ProfilePage() {
               </div>
 
               <div className="pt-4">
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   className="w-full md:w-auto bg-[#1cc29f] hover:bg-[#17a588]"
+                  disabled={isSubmitting}
                 >
-                  Save changes
+                  {isSubmitting ? 'Saving...' : 'Save changes'}
                 </Button>
               </div>
             </CardContent>
@@ -191,31 +303,14 @@ export default function ProfilePage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {mockExpenses
-                .filter(e => e.paidBy.id === currentUser.id)
-                .slice(0, 5)
-                .map(expense => (
-                  <div
-                    key={expense.id}
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-muted cursor-pointer transition-colors"
-                    onClick={() => navigate('expense-detail', { expenseId: expense.id })}
-                  >
-                    <div className="flex-1">
-                      <p className="truncate">{expense.description}</p>
-                      <p className="text-muted-foreground">
-                        {expense.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                      </p>
-                    </div>
-                    <div className="text-right ml-4">
-                      <p className="text-[#1cc29f]">${expense.amount.toFixed(2)}</p>
-                      <p className="text-muted-foreground">{expense.category}</p>
-                    </div>
-                  </div>
-                ))}
+              <div className="text-center py-8 text-muted-foreground">
+                <p>No recent expenses</p>
+                <p className="mt-2">Start adding expenses to see your activity here</p>
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
-    </AppLayout>
+    </AppLayout >
   );
 }

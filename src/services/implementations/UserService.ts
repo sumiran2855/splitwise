@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { User, CreateUserDto, LoginDto, UserRole, PaginationParams, PaginatedResponse } from '../../types';
 import { IUserRepository } from '../../repositories/interfaces/IUserRepository';
 import { IUserService } from '../interfaces/IUserService';
+import { Types } from 'mongoose';
 
 export class UserService implements IUserService {
   private readonly userRepository: IUserRepository;
@@ -30,6 +31,7 @@ export class UserService implements IUserService {
       phoneNumber: userData.phoneNumber,
       isEmailVerified: false,
       role: UserRole.USER,
+      profileId: userData.profileId,
     });
 
     return newUser;
@@ -74,7 +76,13 @@ export class UserService implements IUserService {
   }
 
   async updateUser(id: string, updates: Partial<Omit<User, 'id' | 'createdAt' | 'passwordHash'>>): Promise<User> {
-    const user = await this.userRepository.update(id, updates);
+    const processedUpdates: any = { ...updates };
+    
+    if (updates.profileId) {
+      processedUpdates.profileId = new Types.ObjectId(updates.profileId);
+    }
+    
+    const user = await this.userRepository.update(id, processedUpdates);
     const { passwordHash, ...safeUser } = user;
     return safeUser as User;
   }

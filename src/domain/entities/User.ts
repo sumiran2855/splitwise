@@ -8,6 +8,7 @@ export class UserEntity {
   private avatar?: string;
   private phoneNumber?: string;
   private isEmailVerified: boolean;
+  private profileId?: string;
   private role: UserRole;
   private createdAt: Date;
   private updatedAt: Date;
@@ -20,6 +21,7 @@ export class UserEntity {
     this.avatar = data.avatar;
     this.phoneNumber = data.phoneNumber;
     this.isEmailVerified = data.isEmailVerified;
+    this.profileId = data.profileId;
     this.role = data.role;
     this.createdAt = data.createdAt || new Date();
     this.updatedAt = data.updatedAt || new Date();
@@ -55,6 +57,10 @@ export class UserEntity {
 
   public isEmailVerifiedStatus(): boolean {
     return this.isEmailVerified;
+  }
+
+  public getProfileId(): string | undefined {
+    return this.profileId;
   }
 
   public getRole(): UserRole {
@@ -108,6 +114,7 @@ export class UserEntity {
       avatar: this.avatar,
       phoneNumber: this.phoneNumber,
       isEmailVerified: this.isEmailVerified,
+      profileId: this.profileId,
       role: this.role,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,

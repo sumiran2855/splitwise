@@ -3,8 +3,9 @@ import { User, UserRole, PaginationParams, PaginatedResponse } from '../../types
 import { IUserRepository } from '../interfaces/IUserRepository';
 import { database } from '../../config/database';
 
-interface UserDocument extends Omit<User, 'id'>, Document {
+interface UserDocument extends Omit<User, 'id' | 'profileId'>, Document {
   _id: Types.ObjectId;
+  profileId?: Types.ObjectId;
 }
 
 export class UserRepository implements IUserRepository {
@@ -117,6 +118,7 @@ export class UserRepository implements IUserRepository {
       avatar: doc.avatar,
       phoneNumber: doc.phoneNumber,
       isEmailVerified: doc.isEmailVerified,
+      profileId: doc.profileId?.toString(),
       role: doc.role,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,

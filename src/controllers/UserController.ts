@@ -1,33 +1,65 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { CreateUserDto, LoginDto, UserRole, ApiResponse } from '@/src/types/index';
 import { IUserService } from '@/src/services/interfaces/IUserService';
+import { IProfileService } from '@/src/services/interfaces/IProfileService';
 
 export class UserController {
-  constructor(private userService: IUserService) {}
+  constructor(
+    private userService: IUserService,
+    private profileService?: IProfileService
+  ) { }
 
-  async register(request: NextRequest): Promise<NextResponse<ApiResponse>> {
-    try {
-      const body: CreateUserDto = await request.json();
-      
-      const user = await this.userService.createUser(body);
-      
-      return NextResponse.json({
-        success: true,
-        data: user,
-        message: 'User registered successfully',
-        statusCode: 201,
-      }, { status: 201 });
-    } catch (error) {
-      return this.handleError(error);
+async register(request: NextRequest): Promise<NextResponse<ApiResponse>> {
+  try {
+    const body: CreateUserDto = await request.json();
+    let user = await this.userService.createUser(body);
+    console.log("Initial user:", user);
+
+    if (this.profileService && user.id) {
+      try {
+        const profile = await this.profileService.ensureProfile(user.id, {
+          fullName: body.name || 'User',
+        });
+
+        console.log('Profile created successfully:', profile);
+
+        if (profile.success && profile.data) {
+          const updatedUser = await this.userService.updateUser(user.id, {
+            profileId: profile.data?.id
+          });
+
+          console.log('Updated user with profile:', updatedUser);
+          user = updatedUser;
+        }
+      } catch (profileError) {
+        console.error('Failed to create profile for user:', profileError);
+      }
     }
+
+    const userResponse = {
+      ...user,
+      profileId: user.profileId
+    };
+
+    console.log("Final user response:", userResponse);
+
+    return NextResponse.json({
+      success: true,
+      data: userResponse,
+      message: 'User registered successfully',
+      statusCode: 201,
+    }, { status: 201 });
+  } catch (error) {
+    return this.handleError(error);
   }
+}
 
   async login(request: NextRequest): Promise<NextResponse<ApiResponse>> {
     try {
       const body: LoginDto = await request.json();
-      
+
       const result = await this.userService.authenticateUser(body);
-      
+
       return NextResponse.json({
         success: true,
         data: result,
@@ -42,7 +74,7 @@ export class UserController {
   async getProfile(request: NextRequest): Promise<NextResponse<ApiResponse>> {
     try {
       const userId = this.getUserIdFromRequest(request);
-      
+
       if (!userId) {
         return NextResponse.json({
           success: false,
@@ -52,7 +84,7 @@ export class UserController {
       }
 
       const user = await this.userService.getUserById(userId);
-      
+
       if (!user) {
         return NextResponse.json({
           success: false,
@@ -74,7 +106,7 @@ export class UserController {
   async updateProfile(request: NextRequest): Promise<NextResponse<ApiResponse>> {
     try {
       const userId = this.getUserIdFromRequest(request);
-      
+
       if (!userId) {
         return NextResponse.json({
           success: false,
@@ -84,9 +116,9 @@ export class UserController {
       }
 
       const updates = await request.json();
-      
+
       const user = await this.userService.updateUser(userId, updates);
-      
+
       return NextResponse.json({
         success: true,
         data: user,
@@ -139,7 +171,7 @@ export class UserController {
       }
 
       const user = await this.userService.updateUserRole(targetUserId, role as UserRole);
-      
+
       return NextResponse.json({
         success: true,
         data: user,
@@ -158,7 +190,7 @@ export class UserController {
     }
 
     const token = authHeader.substring(7);
-    
+
     try {
       const jwt = require('jsonwebtoken');
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any;
@@ -170,7 +202,7 @@ export class UserController {
 
   private handleError(error: any): NextResponse<ApiResponse> {
     console.error('Controller error:', error);
-    
+
     if (error.message === 'User with this email already exists') {
       return NextResponse.json({
         success: false,
