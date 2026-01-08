@@ -6,6 +6,7 @@ import { Label } from '@/src/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/src/components/ui/card';
 import { AuthFormProvider } from '@/src/contexts/authFormContext';
 import { LoginRequest } from '@/src/services/interfaces/IAuthService';
+import { Wallet } from "lucide-react";
 
 function LoginPageContent() {
   const { formData, fieldErrors, handleFieldChange, handleFormSubmit, isLoading, navigate } = useLoginForm();
@@ -15,11 +16,9 @@ function LoginPageContent() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white mb-4">
-            <svg viewBox="0 0 24 24" className="w-10 h-10 text-[#1cc29f]" fill="currentColor">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" />
-            </svg>
+            <Wallet className="w-10 h-10 text-[#1cc29f]" />
           </div>
-          <h1 className="text-white mb-2">SplitWise</h1>
+          <h1 className="text-white mb-2">SplitEase</h1>
           <p className="text-white/90">Share expenses with friends</p>
         </div>
 

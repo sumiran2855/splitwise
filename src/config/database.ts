@@ -28,7 +28,7 @@ class DatabaseConnection implements IDatabaseConnection {
     }
 
     try {
-      const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/splitwise';
+      const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/SplitEase';
       
       await mongoose.connect(mongoUri, {
         maxPoolSize: 10,

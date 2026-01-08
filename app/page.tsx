@@ -37,7 +37,7 @@ export default function WelcomePage() {
     <div className="min-h-screen bg-gradient-to-br from-[#1cc29f] to-[#17a588] flex items-center justify-center p-4">
       <div className="max-w-5xl w-full">
         <div className="text-center mb-12">
-          <h1 className="text-white text-5xl mb-4">Welcome to SplitWise</h1>
+          <h1 className="text-white text-5xl mb-4">Welcome to SplitEase</h1>
           <p className="text-white/90 text-xl max-w-2xl mx-auto">
             The easiest way to share expenses with friends and keep track of who owes what
           </p>

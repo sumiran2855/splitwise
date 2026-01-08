@@ -203,7 +203,7 @@ API Route → Controller → Service → Repository → Database
 
 Create `.env.local` file:
 ```env
-MONGODB_URI=mongodb://localhost:27017/splitwise
+MONGODB_URI=mongodb://localhost:27017/SplitEase
 JWT_SECRET=your-super-secret-jwt-key
 JWT_EXPIRES_IN=7d
 ```
@@ -264,4 +264,4 @@ The architecture supports comprehensive testing:
 6. **Analytics**: Expense analytics and reporting
 7. **Real-time**: WebSocket integration for live updates
 
-This architecture provides a solid foundation for a production-ready Splitwise-like application with clean, maintainable, and scalable code.
+This architecture provides a solid foundation for a production-ready SplitEase-like application with clean, maintainable, and scalable code.

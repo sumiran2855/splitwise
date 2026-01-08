@@ -52,7 +52,7 @@ export default function AddFriendPage() {
         <Card>
           <CardHeader>
             <CardTitle>Invite by email</CardTitle>
-            <CardDescription>Send an invitation to join SplitWise</CardDescription>
+            <CardDescription>Send an invitation to join SplitEase</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleInvite} className="space-y-4">
@@ -85,7 +85,7 @@ export default function AddFriendPage() {
         <Card>
           <CardHeader>
             <CardTitle>Search users</CardTitle>
-            <CardDescription>Find people already on SplitWise</CardDescription>
+            <CardDescription>Find people already on SplitEase</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
