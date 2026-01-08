@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ProfileData, UpdateProfileData } from '../services/interfaces/IProfileService';
-import { ProfileService } from '../services/implementations/ProfileService';
+import { ClientProfileService } from '../services/client/ClientProfileService';
 import { ApiClient } from '../api/ApiClient';
 import { ValidationService } from '../validation/ValidationService';
 import { toast } from 'sonner';
@@ -12,7 +12,7 @@ export function useProfile(userId: string) {
 
   const apiClient = ApiClient.getInstance();
   const validationService = ValidationService.getInstance();
-  const profileService = new ProfileService(apiClient, validationService);
+  const profileService = new ClientProfileService(apiClient, validationService);
 
   const fetchProfile = async () => {
     // Skip API call if userId is invalid

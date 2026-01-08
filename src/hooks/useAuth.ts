@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
-import { AuthService } from '../services/implementations/AuthService';
+import { AuthService } from '../services/client/AuthService';
 import { ApiClient } from '../api/ApiClient';
 import { ValidationService } from '../validation/ValidationService';
 import { LoginRequest, SignupRequest } from '../services/interfaces/IAuthService';

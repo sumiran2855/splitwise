@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { UserModel } from '../../../../src/lib/models/User';
 import { UserRepository } from '../../../../src/repositories/implementations/UserRepository';
-import { UserService } from '../../../../src/services/implementations/UserService';
+import { UserService } from '../../../../src/services/server/UserService';
 import { UserController } from '../../../../src/controllers/UserController';
 
 export async function POST(request: NextRequest) {

@@ -3,7 +3,7 @@ import { IProfileRepository } from '../../repositories/interfaces/IProfileReposi
 import { IProfileService } from '../interfaces/IProfileService';
 import { AppError } from '../../utils/errors/AppError';
 
-export class ServerProfileService implements IProfileService {
+export class ProfileService implements IProfileService {
   constructor(private profileRepository: IProfileRepository) {}
 
   async getProfile(userId: string): Promise<{ success: boolean; data?: any; error?: string }> {

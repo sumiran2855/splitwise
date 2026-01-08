@@ -3,7 +3,7 @@ import { ApiClient } from '../../api/ApiClient';
 import { ValidationService, ValidationType } from '../../validation/ValidationService';
 import { API_ROUTES } from '../../api/routes';
 
-export class ProfileService implements IProfileService {
+export class ClientProfileService implements IProfileService {
   constructor(
     private apiClient: ApiClient,
     private validationService: ValidationService
