@@ -7,6 +7,11 @@ import {
   createProfileSchema,
   updateProfileSchema
 } from '../validation/profileValidation';
+import { ProfileModel } from '@/src/lib/models/Profile';
+import mongoose from 'mongoose';
+import { writeFile, mkdir, unlink } from 'fs/promises';
+import { join } from 'path';
+import { existsSync } from 'fs';
 
 export class ProfileController {
   constructor(private profileService: IProfileService) { }
@@ -247,6 +252,110 @@ export class ProfileController {
         { success: false, error: 'Internal server error' },
         { status: 500 }
       );
+    }
+  }
+
+  async uploadAvatar(request: NextRequest): Promise<NextResponse> {
+    try {
+      const formData = await request.formData();
+      const file = formData.get('file') as File;
+
+      if (!file) {
+        return NextResponse.json(
+          { success: false, error: 'No file provided' },
+          { status: 400 }
+        );
+      }
+
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed' },
+          { status: 400 }
+        );
+      }
+
+      // Validate file size (5MB max)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        return NextResponse.json(
+          { success: false, error: 'File too large. Maximum size is 5MB' },
+          { status: 400 }
+        );
+      }
+
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+
+      const userId = formData.get('userId') as string;
+
+      // Delete previous avatar if it exists
+      if (userId) {
+        await this.deletePreviousAvatar(userId);
+      }
+
+      // Create uploads directory if it doesn't exist
+      const uploadsDir = join(process.cwd(), 'public', 'uploads', 'avatars');
+      if (!existsSync(uploadsDir)) {
+        await mkdir(uploadsDir, { recursive: true });
+      }
+
+      // Generate unique filename
+      const timestamp = Date.now();
+      const randomString = Math.random().toString(36).substring(2, 8);
+      const fileExtension = file.name.split('.').pop() || 'jpg';
+      const filename = `avatar_${timestamp}_${randomString}.${fileExtension}`;
+
+      const filepath = join(uploadsDir, filename);
+
+      // Write file to disk
+      await writeFile(filepath, buffer);
+
+      // Return the URL that can be used to access the file
+      const fileUrl = `/uploads/avatars/${filename}`;
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          url: fileUrl,
+          filename: filename,
+          size: file.size,
+          type: file.type
+        }
+      });
+    } catch (error) {
+      console.error('File upload error:', error);
+      return NextResponse.json(
+        { success: false, error: 'Failed to upload file' },
+        { status: 500 }
+      );
+    }
+  }
+
+  async deletePreviousAvatar(userId: string): Promise<void> {
+    try {
+      if (mongoose.connection.readyState !== 1) {
+        await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/SplitEase');
+      }
+
+      const profile = await ProfileModel.findOne({ userId });
+      if (profile && profile.avatar) {
+        const isDefaultAvatar = profile.avatar.includes('default') ||
+          profile.avatar.includes('placeholder') ||
+          !profile.avatar.startsWith('/uploads/avatars/');
+
+        if (isDefaultAvatar) {
+          return;
+        }
+
+        const oldAvatarPath = join(process.cwd(), 'public', profile.avatar);
+        if (existsSync(oldAvatarPath)) {
+          await unlink(oldAvatarPath);
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting previous avatar:', error);
     }
   }
 }

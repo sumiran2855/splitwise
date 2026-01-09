@@ -17,12 +17,14 @@ import { Skeleton } from '@/src/components/ui/skeleton';
 export default function ProfilePage() {
   const { navigate } = useNavigation();
   const { user: currentUser, loading: userLoading } = useCurrentUser();
-  console.log("Current user:", currentUser);
-  
-  // Only call useProfile when we have a valid user ID
-  const { profile, loading: profileLoading, updateProfile, updateAvatar } = useProfile(
-    currentUser?.id ? currentUser.id : 'skip'
-  );
+  const { 
+    profile, 
+    loading: profileLoading, 
+    updateProfile, 
+    handleAvatarUpload,
+    isUploadingAvatar,
+    tempAvatar
+  } = useProfile(currentUser?.id ? currentUser.id : 'skip');
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -56,8 +58,16 @@ export default function ProfilePage() {
   };
 
   const handleAvatarClick = () => {
-    // TODO: Implement avatar upload
-    toast.info('Avatar upload coming soon!');
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/jpeg,image/jpg,image/png,image/gif,image/webp';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        await handleAvatarUpload(file);
+      }
+    };
+    input.click();
   };
 
   const loading = userLoading || profileLoading;
@@ -129,7 +139,7 @@ export default function ProfilePage() {
   // Calculate stats (placeholder - will be implemented with actual expense API)
   const totalExpenses = 0;
   const totalPaid = 0;
-  const memberSince = currentUser ? new Date('2023-01-15') : new Date();
+  const memberSince = currentUser.createdAt.trim().split("T")[0];
 
   return (
     <AppLayout currentPage="profile" navigate={navigate}>
@@ -155,7 +165,9 @@ export default function ProfilePage() {
             <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
               <div className="relative">
                 <Avatar className="w-32 h-32">
-                  {profile?.avatar ? (
+                  {tempAvatar ? (
+                    <img src={tempAvatar} alt="Profile" className="w-full h-full object-cover rounded-full" />
+                  ) : profile?.avatar ? (
                     <img src={profile.avatar} alt="Profile" className="w-full h-full object-cover rounded-full" />
                   ) : (
                     <AvatarFallback className="bg-gradient-to-br from-[#1cc29f] to-[#17a588] text-white text-4xl">
@@ -165,10 +177,15 @@ export default function ProfilePage() {
                 </Avatar>
                 <button
                   onClick={handleAvatarClick}
-                  className="absolute bottom-0 right-0 w-10 h-10 rounded-full bg-[#1cc29f] text-white flex items-center justify-center hover:bg-[#17a588] transition-colors"
+                  className="absolute bottom-0 right-0 w-10 h-10 rounded-full bg-[#1cc29f] text-white flex items-center justify-center hover:bg-[#17a588] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   type="button"
+                  disabled={isUploadingAvatar}
                 >
-                  <Camera className="w-5 h-5" />
+                  {isUploadingAvatar ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <Camera className="w-5 h-5" />
+                  )}
                 </button>
               </div>
               <div className="flex-1 text-center md:text-left">
@@ -177,7 +194,7 @@ export default function ProfilePage() {
                 <div className="flex flex-wrap gap-2 justify-center md:justify-start">
                   <Badge className="bg-[#e6f9f5] text-[#1cc29f]">
                     <Calendar className="w-3 h-3 mr-1" />
-                    Member since {memberSince.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                    Member since {(new Date(memberSince)).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
                   </Badge>
                 </div>
               </div>

@@ -9,6 +9,8 @@ export function useProfile(userId: string) {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [tempAvatar, setTempAvatar] = useState<string | null>(null);
 
   const apiClient = ApiClient.getInstance();
   const validationService = ValidationService.getInstance();
@@ -91,6 +93,64 @@ export function useProfile(userId: string) {
     }
   };
 
+  const handleAvatarUpload = async (file: File): Promise<boolean> => {
+    if (!userId || userId === 'skip') {
+      toast.error('Cannot upload avatar: User not found');
+      return false;
+    }
+
+    // Validate file size (5MB max)
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast.error('File too large. Maximum size is 5MB');
+      return false;
+    }
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed');
+      return false;
+    }
+
+    setIsUploadingAvatar(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const uploadResponse = await profileService.uploadAvatar(userId, formData);
+
+      if (!uploadResponse?.data) {
+        toast.error('Failed to upload avatar');
+        return false;
+      }
+
+      const avatarUrl = (uploadResponse?.data as any)?.data?.url;
+
+      const tempAvatarUrl = URL.createObjectURL(file);
+      setTempAvatar(tempAvatarUrl);
+
+      const success = await updateAvatar(avatarUrl!);
+      if (success) {
+        toast.success('Avatar uploaded successfully');
+        URL.revokeObjectURL(tempAvatarUrl);
+        setTempAvatar(null);
+        await fetchProfile();
+      } else {
+        setTempAvatar(null);
+        URL.revokeObjectURL(tempAvatarUrl);
+      }
+      return true;
+    } catch (error) {
+      console.error('Avatar upload error:', error);
+      toast.error('Failed to upload avatar');
+      setTempAvatar(null);
+      return false;
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
   useEffect(() => {
     if (userId && userId !== 'skip') {
       fetchProfile();
@@ -106,5 +166,8 @@ export function useProfile(userId: string) {
     refetch: fetchProfile,
     updateProfile,
     updateAvatar,
+    handleAvatarUpload,
+    isUploadingAvatar,
+    tempAvatar,
   };
 }

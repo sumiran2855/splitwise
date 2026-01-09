@@ -4,6 +4,8 @@ export interface CurrentUser {
   id: string;
   email: string;
   name: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export function useCurrentUser() {

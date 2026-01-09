@@ -39,6 +39,7 @@ export interface ProfileResponse {
   data?: {
     id?: string;
     data: ProfileData;
+    url?: string;
   };
   error?: string;
 }

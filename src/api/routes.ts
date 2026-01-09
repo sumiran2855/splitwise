@@ -13,6 +13,7 @@ export const API_ROUTES = {
         ENSURE: '/api/profile/ensure',
         UPDATE: '/api/profile',
         UPDATE_AVATAR: '/api/profile/avatar',
+        UPLOAD: '/api/profile/upload',
     },
 } as const;
 

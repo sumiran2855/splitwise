@@ -9,7 +9,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
-import { currentUser } from '../data/mockData';
+import { useCurrentUser } from '../hooks/useCurrentUser';
+import { useProfile } from '../hooks/useProfile';
 import type { Page, NavigationState } from '../contexts/navigationContext';
 import { useNavigation } from '../contexts/navigationContext';
 
@@ -22,6 +23,12 @@ interface AppLayoutProps {
 
 export default function AppLayout({ children, currentPage, navigate: propNavigate, onLogout }: AppLayoutProps) {
   const contextNavigate = useNavigation();
+  const { user: currentUser, loading: userLoading } = useCurrentUser();
+  
+  const { profile } = useProfile(
+    currentUser?.id ? currentUser.id : 'skip'
+  );
+  
   const navigate = propNavigate || contextNavigate.navigate;
   
   const handleLogout = () => {
@@ -89,16 +96,20 @@ export default function AppLayout({ children, currentPage, navigate: propNavigat
                 <DropdownMenuTrigger asChild>
                   <button className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
                     <Avatar className="w-9 h-9">
-                      <AvatarFallback className="bg-[#1cc29f] text-white">
-                        {currentUser.initials}
-                      </AvatarFallback>
+                      {profile?.avatar ? (
+                        <img src={profile.avatar} alt="Profile" className="w-full h-full object-cover rounded-full" />
+                      ) : (
+                        <AvatarFallback className="bg-[#1cc29f] text-white">
+                          {(profile?.fullName || currentUser?.name || 'User').split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
+                        </AvatarFallback>
+                      )}
                     </Avatar>
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <div className="px-2 py-1.5">
-                    <p className="font-medium">{currentUser.name}</p>
-                    <p className="text-muted-foreground">{currentUser.email}</p>
+                    <p className="font-medium">{profile?.fullName || currentUser?.name}</p>
+                    <p className="text-muted-foreground">{currentUser?.email}</p>
                   </div>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => navigate('profile')}>

@@ -121,4 +121,47 @@ export class ClientProfileService implements IProfileService {
       };
     }
   }
+
+  async uploadAvatar(userId: string, formData: FormData): Promise<ProfileResponse> {
+    if (!userId) {
+      return {
+        success: false,
+        error: 'User ID is required'
+      };
+    }
+
+    if (!formData) {
+      return {
+        success: false,
+        error: 'FormData is required'
+      };
+    }
+
+    try {
+      formData.append('userId', userId);
+      const response = await fetch(`${API_ROUTES.PROFILE.UPLOAD}?userId=${encodeURIComponent(userId)}`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: result.error || 'Failed to upload avatar'
+        };
+      }
+
+      return {
+        success: true,
+        data: result
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to upload avatar'
+      };
+    }
+  }
 }
