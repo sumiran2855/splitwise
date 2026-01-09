@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { useCurrentUser } from '../hooks/useCurrentUser';
-import { useProfile } from '../hooks/useProfile';
+import { useProfileContext } from '../contexts/profileContext';
 import type { Page, NavigationState } from '../contexts/navigationContext';
 import { useNavigation } from '../contexts/navigationContext';
 
@@ -25,9 +25,7 @@ export default function AppLayout({ children, currentPage, navigate: propNavigat
   const contextNavigate = useNavigation();
   const { user: currentUser, loading: userLoading } = useCurrentUser();
   
-  const { profile } = useProfile(
-    currentUser?.id ? currentUser.id : 'skip'
-  );
+  const { profile } = useProfileContext();
   
   const navigate = propNavigate || contextNavigate.navigate;
   
@@ -100,7 +98,7 @@ export default function AppLayout({ children, currentPage, navigate: propNavigat
                         <img src={profile.avatar} alt="Profile" className="w-full h-full object-cover rounded-full" />
                       ) : (
                         <AvatarFallback className="bg-[#1cc29f] text-white">
-                          {(profile?.fullName || currentUser?.name || 'User').split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
+                          {(profile?.fullName || currentUser?.name || 'User').split(' ').map((n: string) => n[0]).join('').toUpperCase() || 'U'}
                         </AvatarFallback>
                       )}
                     </Avatar>

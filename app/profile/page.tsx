@@ -9,7 +9,7 @@ import { Badge } from '@/src/components/ui/badge';
 import { ArrowLeft, Camera, Mail, Phone, MapPin, Calendar, User } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigation } from '@/src/contexts/navigationContext';
-import { useProfile } from '@/src/hooks/useProfile';
+import { useProfileContext } from '@/src/contexts/profileContext';
 import { useCurrentUser } from '@/src/hooks/useCurrentUser';
 import { Skeleton } from '@/src/components/ui/skeleton';
 
@@ -24,7 +24,7 @@ export default function ProfilePage() {
     handleAvatarClick,
     isUploadingAvatar,
     tempAvatar
-  } = useProfile(currentUser?.id ? currentUser.id : 'skip');
+  } = useProfileContext();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -143,7 +143,7 @@ export default function ProfilePage() {
                     <img src={profile.avatar} alt="Profile" className="w-full h-full object-cover rounded-full" />
                   ) : (
                     <AvatarFallback className="bg-gradient-to-br from-[#1cc29f] to-[#17a588] text-white text-4xl">
-                      {(name || profile?.fullName || currentUser?.name || 'User').split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
+                      {(name || profile?.fullName || currentUser?.name || 'User').split(' ').map((n: string) => n[0]).join('').toUpperCase() || 'U'}
                     </AvatarFallback>
                   )}
                 </Avatar>

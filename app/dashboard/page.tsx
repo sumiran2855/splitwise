@@ -5,11 +5,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/src
 import { Avatar, AvatarFallback } from '@/src/components/ui/avatar';
 import { Button } from '@/src/components/ui/button';
 import { ArrowUpRight, ArrowDownRight, Users, TrendingUp } from 'lucide-react';
-import { mockFriends, mockGroups, mockExpenses, currentUser } from '@/src/data/mockData';
+import { mockFriends, mockGroups, mockExpenses } from '@/src/data/mockData';
 import { useNavigation } from '@/src/contexts/navigationContext';
+import { useCurrentUser } from '@/src/hooks/useCurrentUser';
 
 export default function DashboardPage() {
   const { navigate, setAuthenticated } = useNavigation();
+  const { user } = useCurrentUser();
 
   const handleLogout = () => {
     setAuthenticated(false);
@@ -43,7 +45,7 @@ export default function DashboardPage() {
       <div className="space-y-6">
         {/* Welcome Section */}
         <div>
-          <h1 className="mb-1">Welcome back, {currentUser.name.split(' ')[0]}!</h1>
+          <h1 className="mb-1">Welcome back, {user?.name.split(' ')[0]}!</h1>
           <p className="text-muted-foreground">Here's your expense overview</p>
         </div>
 
