@@ -8,7 +8,6 @@ import { Avatar, AvatarFallback } from '@/src/components/ui/avatar';
 import { Badge } from '@/src/components/ui/badge';
 import { ArrowLeft, Camera, Mail, Phone, MapPin, Calendar, User } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
 import { useNavigation } from '@/src/contexts/navigationContext';
 import { useProfile } from '@/src/hooks/useProfile';
 import { useCurrentUser } from '@/src/hooks/useCurrentUser';
@@ -20,8 +19,9 @@ export default function ProfilePage() {
   const { 
     profile, 
     loading: profileLoading, 
-    updateProfile, 
-    handleAvatarUpload,
+    isSubmitting,
+    handleSave,
+    handleAvatarClick,
     isUploadingAvatar,
     tempAvatar
   } = useProfile(currentUser?.id ? currentUser.id : 'skip');
@@ -30,9 +30,7 @@ export default function ProfilePage() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [location, setLocation] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Initialize form data when profile is loaded
   useEffect(() => {
     if (profile) {
       setName(profile.fullName);
@@ -43,32 +41,6 @@ export default function ProfilePage() {
       setEmail(currentUser.email);
     }
   }, [profile, currentUser]);
-
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!currentUser || isSubmitting) return;
-
-    setIsSubmitting(true);
-    const success = await updateProfile({
-      fullName: name,
-      phone: phone || undefined,
-      location: location || undefined,
-    });
-    setIsSubmitting(false);
-  };
-
-  const handleAvatarClick = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/jpeg,image/jpg,image/png,image/gif,image/webp';
-    input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) {
-        await handleAvatarUpload(file);
-      }
-    };
-    input.click();
-  };
 
   const loading = userLoading || profileLoading;
 

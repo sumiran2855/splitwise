@@ -4,6 +4,7 @@ import { ClientProfileService } from '../services/client/ClientProfileService';
 import { ApiClient } from '../api/ApiClient';
 import { ValidationService } from '../validation/ValidationService';
 import { toast } from 'sonner';
+import { useCurrentUser } from '../hooks/useCurrentUser';
 
 export function useProfile(userId: string) {
   const [profile, setProfile] = useState<ProfileData | null>(null);
@@ -11,10 +12,12 @@ export function useProfile(userId: string) {
   const [error, setError] = useState<string | null>(null);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [tempAvatar, setTempAvatar] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const apiClient = ApiClient.getInstance();
   const validationService = ValidationService.getInstance();
   const profileService = new ClientProfileService(apiClient, validationService);
+  const { user: currentUser, loading: userLoading } = useCurrentUser();
 
   const fetchProfile = async () => {
     // Skip API call if userId is invalid
@@ -151,6 +154,32 @@ export function useProfile(userId: string) {
     }
   };
 
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentUser || isSubmitting || !profile) return;
+
+    setIsSubmitting(true);
+    const success = await updateProfile({
+      fullName: profile.fullName,
+      phone: profile.phone || undefined,
+      location: profile.location || undefined,
+    });
+    setIsSubmitting(false);
+  };
+
+  const handleAvatarClick = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/jpeg,image/jpg,image/png,image/gif,image/webp';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        await handleAvatarUpload(file);
+      }
+    };
+    input.click();
+  };
+
   useEffect(() => {
     if (userId && userId !== 'skip') {
       fetchProfile();
@@ -163,11 +192,14 @@ export function useProfile(userId: string) {
     profile,
     loading,
     error,
+    isSubmitting,
+    isUploadingAvatar,
+    tempAvatar,
     refetch: fetchProfile,
     updateProfile,
     updateAvatar,
+    handleSave,
+    handleAvatarClick,
     handleAvatarUpload,
-    isUploadingAvatar,
-    tempAvatar,
   };
 }
